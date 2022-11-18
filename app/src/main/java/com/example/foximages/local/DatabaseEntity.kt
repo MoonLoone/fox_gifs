@@ -1,4 +1,4 @@
-package com.example.foximages.database
+package com.example.foximages.local
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

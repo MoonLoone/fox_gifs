@@ -1,7 +1,5 @@
-package com.example.foximages.models
+package com.example.foximages.pojo
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
@@ -16,7 +14,4 @@ data class DataFromAPI(
     @SerializedName("media")
     @Expose
     val media:List<Media>? = null,
-    @SerializedName("next")
-    @Expose
-    val next:Int? = null,
 )

@@ -1,4 +1,4 @@
-package com.example.foximages.models
+package com.example.foximages.pojo
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
