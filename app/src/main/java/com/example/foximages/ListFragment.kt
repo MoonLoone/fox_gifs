@@ -2,6 +2,7 @@ package com.example.foximages
 
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +26,8 @@ import coil.compose.AsyncImage
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import com.example.foximages.pojo.DataFromAPI
+import com.example.foximages.ui.GifListUi
+import com.example.foximages.ui.LoadingUi
 import kotlinx.coroutines.flow.Flow
 
 
@@ -47,70 +50,11 @@ class ListFragment : Fragment() {
                 val gifs by viewModel.gifsState.collectAsState()
                 when{
                     isLoading -> LoadingUi()
-                    else -> GifListUi(gifs)
+                    else -> GifListUi(gifs, context)
                 }
 
             }
         }
     }
 
-    @Composable
-    fun LoadingUi(){
-        CircularProgressIndicator()
-    }
-
-    @Composable
-    private fun GifContent(
-       gifts: Flow<PagingData<DataFromAPI>>,
-    ){
-
-    }
-
-    @Composable
-    fun GifListUi(gifsList: Flow<PagingData<DataFromAPI>>) {
-        val items:LazyPagingItems<DataFromAPI> = gifsList.collectAsLazyPagingItems()
-        LazyVerticalGrid(columns = GridCells.Fixed(2), content = {
-            this.items<DataFromAPI>(items){
-                GifGridItem(data = it?:DataFromAPI())
-            }
-        })
-    }
-
-    @Composable
-    private fun GifGridItem(
-        data:DataFromAPI
-    ){
-        val imageLoader = ImageLoader.Builder(requireContext())
-            .components {
-                if (SDK_INT >= 28) {
-                    add(ImageDecoderDecoder.Factory())
-                } else {
-                    add(GifDecoder.Factory())
-                }
-            }
-            .build()
-        AsyncImage(
-            model = data.media?.get(0)?.gif?.url,
-            imageLoader = imageLoader,
-            contentDescription = null
-        )
-    }
-
-    private fun <T: Any> LazyGridScope.items(
-        lazyPagingItems: LazyPagingItems<DataFromAPI>,
-        itemContent: @Composable LazyItemScope.(value: T?) -> Unit
-    ) {
-        items(lazyPagingItems.itemCount) { item ->
-            GifGridItem(data = lazyPagingItems[item] ?: DataFromAPI())
-        }
-    }
-
-    companion object {
-        fun newInstance() =
-            ListFragment().apply {
-                arguments = Bundle().apply {
-
-                }
-            }
-    }
 }

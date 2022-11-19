@@ -9,7 +9,7 @@ interface RetrofitService {
     @GET("search")
     suspend fun getData(
         @Query("key") key: String = "LIVDSRZULELA",
-        @Query("limit") limit: Int = 10,
+        @Query("limit") limit: Int = 30,
         @Query("q") query: String = "excited",
         @Query("pos") next: Int = 1
     ): RawData
