@@ -24,6 +24,12 @@ class ListFragmentViewModel(application: Application) : AndroidViewModel(applica
         ).build()
     )
 
+    init {
+        viewModelScope.launch {
+            gifsRepository.initData()
+        }
+    }
+
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading
     private val gifs = MutableStateFlow(emptyFlow<PagingData<DataFromAPI>>())

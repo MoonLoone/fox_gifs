@@ -18,6 +18,11 @@ class GifsRepository(
 
     suspend fun allGifs(): Flow<PagingData<DataFromAPI>> = gifsStore.ensureIsNotEmpty().all()
 
+    suspend fun initData(){
+        val gifs = gifsSource.load()
+        gifsStore.save(gifs)
+    }
+
     private suspend fun GifStore.ensureIsNotEmpty() = apply {
         if (isEmpty()){
             val gifs = gifsSource.load()
