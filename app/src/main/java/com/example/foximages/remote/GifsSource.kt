@@ -5,7 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class GifsSource {
-    suspend fun load(): List<DataFromAPI> = withContext(Dispatchers.IO){
-        RetrofitBuilder.apiService.getData().results?: listOf()
+    suspend fun load(pageNumber:Int, name:String = "excited"): List<DataFromAPI> = withContext(Dispatchers.IO){
+        RetrofitBuilder.apiService.getData(next = pageNumber, query = name).results?: listOf()
     }
 }

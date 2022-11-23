@@ -17,6 +17,10 @@ class GifStore(database: AppDatabase) {
         this.gifs.insertAll(gifs.map { it.toLocalEntity() })
     }
 
+    suspend fun clear(){
+        gifs.clear()
+    }
+
     suspend fun isEmpty(): Boolean = gifs.count() == 0L
 
     private fun DataFromAPI.toLocalEntity() = DatabaseEntity(

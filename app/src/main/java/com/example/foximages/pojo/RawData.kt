@@ -10,7 +10,5 @@ data class RawData(
     @SerializedName("next")
     @Expose
     val next:Int? = null,
-){
-
-}
+)
 

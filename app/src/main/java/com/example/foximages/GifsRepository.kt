@@ -11,22 +11,32 @@ class GifsRepository(
     private val gifsSource: GifsSource,
     private val gifsStore: GifStore
 ) {
-    constructor(database: AppDatabase): this(
+    constructor(database: AppDatabase) : this(
         gifsSource = GifsSource(),
         gifsStore = GifStore(database)
     )
 
     suspend fun allGifs(): Flow<PagingData<DataFromAPI>> = gifsStore.ensureIsNotEmpty().all()
 
-    suspend fun initData(){
-        val gifs = gifsSource.load()
-        gifsStore.save(gifs)
+    private suspend fun initData() {
+        gifsStore.clear()
+        for (page in 0..3) {
+            val gifs = gifsSource.load(page)
+            gifsStore.save(gifs)
+        }
+    }
+
+    suspend fun getGifsByName(name: String) {
+        gifsStore.clear()
+        for (page in 0..3) {
+            val gifs = gifsSource.load(page, name)
+            gifsStore.save(gifs)
+        }
     }
 
     private suspend fun GifStore.ensureIsNotEmpty() = apply {
-        if (isEmpty()){
-            val gifs = gifsSource.load()
-            save(gifs)
+        if (isEmpty()) {
+            initData()
         }
     }
 }

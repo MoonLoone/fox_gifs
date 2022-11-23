@@ -11,6 +11,6 @@ interface RetrofitService {
         @Query("key") key: String = "LIVDSRZULELA",
         @Query("limit") limit: Int = 30,
         @Query("q") query: String = "excited",
-        @Query("pos") next: Int = 1
+        @Query("pos") next: Int = 1,
     ): RawData
 }

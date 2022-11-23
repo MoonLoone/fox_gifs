@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
@@ -11,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.foximages.ui.GifListUi
 import com.example.foximages.ui.LoadingUi
+import com.example.foximages.ui.SearchForm
 
 
 class ListFragment : Fragment() {
@@ -28,11 +30,16 @@ class ListFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                val isLoading by viewModel.isLoading.collectAsState()
-                val gifs by viewModel.gifsState.collectAsState()
-                when{
-                    isLoading -> LoadingUi()
-                    else -> GifListUi(gifs, context)
+                Column {
+                    SearchForm {
+                        viewModel.loadByName(it)
+                    }
+                    val isLoading by viewModel.isLoading.collectAsState()
+                    val gifs by viewModel.gifsState.collectAsState()
+                    when {
+                        isLoading -> LoadingUi()
+                        else -> GifListUi(gifs, context)
+                    }
                 }
             }
         }
