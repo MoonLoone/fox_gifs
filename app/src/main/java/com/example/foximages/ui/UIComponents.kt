@@ -34,6 +34,10 @@ import com.example.foximages.R
 import com.example.foximages.pojo.DataFromAPI
 import kotlinx.coroutines.flow.Flow
 
+@Composable
+fun UploadingDataPlug(modifier: Modifier){
+    CircularProgressIndicator(modifier = modifier.background(Color.Yellow))
+}
 
 @Composable
 fun SearchForm(callback: (text: String) -> Unit) {
