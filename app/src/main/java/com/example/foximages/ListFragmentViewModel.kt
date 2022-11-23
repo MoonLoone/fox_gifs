@@ -37,7 +37,7 @@ class ListFragmentViewModel(application: Application) : AndroidViewModel(applica
 
     fun loadByName(name:String) = effect{
         _isLoading.value = true
-        gifsRepository.getGifsByName(name)
+        gifsRepository.getGifs(name)
         gifs.value = gifsRepository.allGifs()
         _isLoading.value = false
     }

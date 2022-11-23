@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.*
@@ -38,13 +39,19 @@ class ListFragment : Fragment() {
             return ComposeView(requireContext()).apply {
                 setContent {
                     Column {
-                        SearchForm {
-                            viewModel.loadByName(it)
-                        }
                         val isLoading by viewModel.isLoading.collectAsState()
                         val gifs by viewModel.gifsState.collectAsState()
                         var isInternetConnected by remember {
                             mutableStateOf(checkInternetConnection())
+                        }
+                        SearchForm {
+                            isInternetConnected = checkInternetConnection()
+                            if (isInternetConnected) {
+                                viewModel.loadByName(it)
+                            }
+                            else{
+                                Toast.makeText(context,"Please connect to internet", Toast.LENGTH_SHORT).show()
+                            }
                         }
                         when {
                             !isInternetConnected -> UploadingDataPlug(Modifier.clickable {
