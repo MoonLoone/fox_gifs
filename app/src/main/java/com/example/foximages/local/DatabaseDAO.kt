@@ -7,19 +7,18 @@ import androidx.room.Insert
 import androidx.room.Query
 
 @Dao
-interface DatabaseDAO {
-
+interface DatabaseDao {
     @Query("SELECT * FROM databaseentity")
     fun getAll(): PagingSource<Int, DatabaseEntity>
 
     @Query("SELECT * FROM databaseentity WHERE id = :id")
-    suspend fun getItemByID(id: Int): DatabaseEntity
+    suspend fun get(id: Int): DatabaseEntity
 
     @Insert
-    suspend fun insertAll(listOfData: List<DatabaseEntity>)
+    suspend fun insert(listOfData: List<DatabaseEntity>)
 
     @Insert
-    suspend fun insertOneItem(data: DatabaseEntity)
+    suspend fun insert(data: DatabaseEntity)
 
     @Delete
     suspend fun delete(data: DatabaseEntity)

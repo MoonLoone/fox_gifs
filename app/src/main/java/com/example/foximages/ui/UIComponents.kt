@@ -1,6 +1,5 @@
 package com.example.foximages.ui
 
-import android.content.Context
 import android.content.res.Configuration
 import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.background
@@ -20,22 +19,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import com.example.foximages.R
-import com.example.foximages.pojo.DataFromAPI
-import kotlinx.coroutines.flow.Flow
+import com.example.foximages.pojo.DataFromApi
 
 @Composable
-fun UploadingDataPlug(modifier: Modifier){
+fun UploadingDataPlug(modifier: Modifier) {
     CircularProgressIndicator(modifier = modifier.background(Color.Yellow))
 }
 
@@ -48,13 +47,14 @@ fun SearchForm(callback: (text: String) -> Unit) {
             .background(Color.Yellow)
             .width(200.dp)
     ) {
+        val maxLength = 20
         var text by remember {
             mutableStateOf(TextFieldValue(""))
         }
         BasicTextField(
             value = text,
             onValueChange = {
-                text = it
+               if(it.text.length <=maxLength) text = it
             },
             keyboardActions = KeyboardActions(
                 onDone = {
@@ -64,7 +64,7 @@ fun SearchForm(callback: (text: String) -> Unit) {
             singleLine = true,
             decorationBox = { innerTextField ->
                 if (text.text.isEmpty()) {
-                    Text("Enter your search parameter")
+                    Text(stringResource(id = R.string.search_fish_bone))
                 }
                 innerTextField()
             }
@@ -82,27 +82,32 @@ fun LoadingUi() {
 }
 
 @Composable
-fun GifListUi(gifsList: Flow<PagingData<DataFromAPI>>, context: Context) {
-    val items: LazyPagingItems<DataFromAPI> = gifsList.collectAsLazyPagingItems()
+fun GifListUi(items: LazyPagingItems<DataFromApi>) {
+
+    val context = LocalContext.current
+    val resources = context.resources
+    val orientation = LocalConfiguration.current.orientation
+
     val spanCount =
-        if (context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) context.resources.getInteger(
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) resources.getInteger(
             R.integer.vertical_column_count
         )
-        else context.resources.getInteger(R.integer.horizontal_column_count)
+        else resources.getInteger(R.integer.horizontal_column_count)
     LazyVerticalGrid(columns = GridCells.Fixed(spanCount),
         content = {
-            this.items<DataFromAPI>(items, context) {
-                GifGridItem(data = it ?: DataFromAPI(), context)
+            this.items<DataFromApi>(items) {
+                GifGridItem(data = it ?: DataFromApi())
             }
         })
-
 }
 
 @Composable
 private fun GifGridItem(
-    data: DataFromAPI,
-    context: Context,
+    data: DataFromApi,
 ) {
+
+    val context = LocalContext.current
+
     var imageState by remember {
         mutableStateOf(false)
     }
@@ -144,11 +149,10 @@ private fun GifGridItem(
 }
 
 private fun <T : Any> LazyGridScope.items(
-    lazyPagingItems: LazyPagingItems<DataFromAPI>,
-    context: Context,
+    lazyPagingItems: LazyPagingItems<DataFromApi>,
     itemContent: @Composable LazyItemScope.(value: T?) -> Unit
 ) {
     items(lazyPagingItems.itemCount) { item ->
-        GifGridItem(data = lazyPagingItems[item] ?: DataFromAPI(), context)
+        GifGridItem(data = lazyPagingItems[item] ?: DataFromApi())
     }
 }

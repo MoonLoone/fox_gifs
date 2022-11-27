@@ -1,8 +1,5 @@
 package com.example.foximages
 
-import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,19 +12,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.foximages.ui.GifListUi
 import com.example.foximages.ui.LoadingUi
 import com.example.foximages.ui.SearchForm
 import com.example.foximages.ui.UploadingDataPlug
+import com.example.foximages.utils.InternetConnectionManager
 
 
 class ListFragment : Fragment() {
 
-    private val viewModel: ListFragmentViewModel by viewModels()
+    private val viewModel: ListFragmentViewModel by viewModels{ ListFragmentViewModel.factory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (checkInternetConnection()) {
+        if (InternetConnectionManager.checkInternetConnection(requireContext())) {
             viewModel.load()
         }
     }
@@ -42,41 +41,29 @@ class ListFragment : Fragment() {
                         val isLoading by viewModel.isLoading.collectAsState()
                         val gifs by viewModel.gifsState.collectAsState()
                         var isInternetConnected by remember {
-                            mutableStateOf(checkInternetConnection())
+                            mutableStateOf(InternetConnectionManager.checkInternetConnection(requireContext()))
                         }
                         SearchForm {
-                            isInternetConnected = checkInternetConnection()
+                            isInternetConnected = InternetConnectionManager.checkInternetConnection(requireContext())
                             if (isInternetConnected) {
-                                viewModel.loadByName(it)
+                                viewModel.load(it)
                             }
                             else{
-                                Toast.makeText(context,"Please connect to internet", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, resources.getText(R.string.internet_warning), Toast.LENGTH_SHORT).show()
                             }
                         }
                         when {
                             !isInternetConnected -> UploadingDataPlug(Modifier.clickable {
-                                if (checkInternetConnection()){
+                                if (InternetConnectionManager.checkInternetConnection(requireContext())){
                                     isInternetConnected = !isInternetConnected
                                     viewModel.load()
                                 }
                             })
                             isLoading -> LoadingUi()
-                            else -> GifListUi(gifs, context)
+                            else -> GifListUi(gifs.collectAsLazyPagingItems())
                         }
                     }
                 }
             }
         }
-
-
-    private fun checkInternetConnection():Boolean{
-        val connectivityManager = requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = connectivityManager.activeNetwork ?: return false
-        val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
-        return when {
-            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-            else -> false
-        }
-    }
 }

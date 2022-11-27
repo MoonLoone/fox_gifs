@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName
 data class RawData(
     @SerializedName("results")
     @Expose
-    val results:List<DataFromAPI>? = null,
+    val results:List<DataFromApi> = emptyList(),
     @SerializedName("next")
     @Expose
     val next:Int? = null,

@@ -5,5 +5,5 @@ import androidx.room.RoomDatabase
 
 @Database(entities = [DatabaseEntity::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
-    abstract val gifs: DatabaseDAO
+    abstract val gifs: DatabaseDao
 }

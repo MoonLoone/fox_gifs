@@ -1,49 +1,60 @@
 package com.example.foximages
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.paging.PagingData
 import androidx.room.Room
 import com.example.foximages.local.AppDatabase
-import com.example.foximages.pojo.DataFromAPI
+import com.example.foximages.pojo.DataFromApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 
-class ListFragmentViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val gifsRepository = GifsRepository(
-        Room.databaseBuilder(
-            application,
-            AppDatabase::class.java, "database.db"
-        ).build()
-    )
+class ListFragmentViewModel(application: Application, private val gifsRepository: GifsRepository) :
+    AndroidViewModel(application) {
 
     private val _isLoading = MutableStateFlow(true)
-    val isLoading: StateFlow<Boolean> = _isLoading
-    private val gifs = MutableStateFlow(emptyFlow<PagingData<DataFromAPI>>())
-    val gifsState: StateFlow<Flow<PagingData<DataFromAPI>>> = gifs
+
+    // FIXME: есть extension, который создается ReadOnlyFlow
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    private val gifs = MutableStateFlow(emptyFlow<PagingData<DataFromApi>>())
+    val gifsState: StateFlow<Flow<PagingData<DataFromApi>>> = gifs
 
     fun load() = effect {
         _isLoading.value = true
-        gifs.value = gifsRepository.allGifs()
+        gifs.value = gifsRepository.gifs()
         _isLoading.value = false
     }
 
-    fun loadByName(name:String) = effect{
+    fun load(name: String) = effect {
         _isLoading.value = true
-        gifsRepository.getGifs(name)
-        gifs.value = gifsRepository.allGifs()
+        gifsRepository.loadGifs(name)
+        gifs.value = gifsRepository.gifs()
         _isLoading.value = false
     }
 
     private fun effect(block: suspend () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) { block() }
+    }
+
+    companion object {
+        val factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
+                val application = checkNotNull(extras[APPLICATION_KEY])
+                return ListFragmentViewModel(
+                    application,
+                    gifsRepository = GifsRepository(
+                        Room.databaseBuilder(
+                            application,
+                            AppDatabase::class.java, "database.db"
+                        ).build()
+                    ),
+                ) as T
+            }
+        }
     }
 
 }

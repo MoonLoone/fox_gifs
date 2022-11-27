@@ -5,8 +5,10 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 
+const val KEY = "LIVDSRZULELA"
+
 interface RetrofitService {
-    @GET("search")
+    @GET("search?key=$KEY")
     suspend fun getData(
         @Query("key") key: String = "LIVDSRZULELA",
         @Query("limit") limit: Int = 30,
